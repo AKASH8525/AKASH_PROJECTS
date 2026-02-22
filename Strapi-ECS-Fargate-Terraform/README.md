@@ -1407,6 +1407,9 @@ The application can be accessed through:
 ```
 http://<alb-dns-name>
 ```
+<img width="1910" height="780" alt="Screenshot 2026-02-22 132645" src="https://github.com/user-attachments/assets/3726f7e5-e98c-45e5-85f2-d9214ddf66b5" />
+
+<img width="1896" height="730" alt="Screenshot 2026-02-22 132401" src="https://github.com/user-attachments/assets/7757eabd-56e9-4961-829b-481de75984fb" />
 
 ---
 
@@ -1419,6 +1422,7 @@ http://<alb-dns-name>
 * Admin login and data persistence are verified.
 
 This confirms proper internal communication between ECS and RDS.
+<img width="1914" height="333" alt="Screenshot 2026-02-22 132835" src="https://github.com/user-attachments/assets/e4112b50-ccdc-440b-9849-5bb6a30e96c9" />
 
 ---
 
@@ -1431,6 +1435,7 @@ This confirms proper internal communication between ECS and RDS.
 * Security groups strictly control traffic flow.
 
 The network isolation is functioning as designed.
+<img width="1664" height="762" alt="Screenshot 2026-02-22 132504" src="https://github.com/user-attachments/assets/c70479e3-ff77-44a8-b96a-b2da633f99ea" />
 
 ---
 
@@ -1443,6 +1448,7 @@ The network isolation is functioning as designed.
 * Service stabilization is verified during deployment.
 
 This confirms that the entire deployment process is automated.
+<img width="1906" height="963" alt="Screenshot 2026-02-22 132428" src="https://github.com/user-attachments/assets/2b848e7d-8c07-45a5-898f-8c3782a84bfc" />
 
 ---
 
@@ -1454,6 +1460,8 @@ This confirms that the entire deployment process is automated.
 * ALB health checks function correctly.
 
 This ensures observability and operational visibility.
+<img width="1899" height="854" alt="Screenshot 2026-02-22 132938" src="https://github.com/user-attachments/assets/70788231-ca2b-4ae3-91d0-b4521dd3a581" />
+<img width="1884" height="909" alt="Screenshot 2026-02-22 133127" src="https://github.com/user-attachments/assets/e270bf5b-0304-49a6-aff6-c09885e89605" />
 
 ---
 
@@ -1465,6 +1473,7 @@ This ensures observability and operational visibility.
 * Changes are version-controlled.
 
 The environment can be recreated consistently using Terraform.
+<img width="1896" height="730" alt="Screenshot 2026-02-22 132401" src="https://github.com/user-attachments/assets/a8df4031-cc31-46d3-b4ea-4a54b247f821" />
 
 ---
 
