@@ -1,0 +1,96 @@
+name: Deploy Strapi ECS Fargate
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: ap-south-1
+  ECR_REPOSITORY: strapi-repo
+  ACCOUNT_ID: 229401742204
+  CLUSTER_NAME: strapi-cluster
+  SERVICE_NAME: strapi-service
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.6
+
+      # Login to ECR
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | \
+          docker login --username AWS --password-stdin \
+          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      # Build Docker Image
+      - name: Build Docker Image
+        run: |
+          docker build -t $ECR_REPOSITORY:${{ github.sha }} ./strapi-app
+
+      # Tag Docker Image
+      - name: Tag Docker Image
+        run: |
+          docker tag $ECR_REPOSITORY:${{ github.sha }} \
+          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:${{ github.sha }}
+
+      # Push Docker Image
+      - name: Push Docker Image
+        run: |
+          docker push \
+          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:${{ github.sha }}
+
+      # Terraform Init
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init -reconfigure
+
+      # Terraform Apply
+      - name: Terraform Apply
+        working-directory: terraform
+        run: |
+          terraform apply -auto-approve \
+            -var="project_name=strapi" \
+            -var="aws_region=$AWS_REGION" \
+            -var="image_uri=$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:${{ github.sha }}" \
+            -var="db_name=${{ secrets.DB_NAME }}" \
+            -var="db_username=${{ secrets.DB_USERNAME }}" \
+            -var="db_password=${{ secrets.DB_PASSWORD }}"
+
+      # Wait for ECS Service to Stabilize
+      - name: Wait for ECS Service
+        run: |
+          aws ecs wait services-stable \
+            --cluster $CLUSTER_NAME \
+            --services $SERVICE_NAME
+
+      # Get ALB DNS
+      - name: Get ALB DNS
+        run: |
+          ALB_DNS=$(aws elbv2 describe-load-balancers \
+            --query "LoadBalancers[0].DNSName" \
+            --output text)
+
+          echo "-------------------------------------------"
+          echo "Strapi Public URL:"
+          echo "http://$ALB_DNS"
+          echo "-------------------------------------------"
